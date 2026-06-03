@@ -1,0 +1,23 @@
+## Conversation
+/goal: "bake the changes first and push to the fork(s) and push to dev". This is the modelopt-fork half of ACCEL.5 — persisting the reduce_amax fp8 patch that made MiniMax-M2.7 NVFP4 PTQ work, which until now lived only as a live edit inside the now-deleted minimax-m2p7-dev pod on infr-dev-us-e-04b.
+
+## Actions
+- Read core_utils.py reduce_amax (140-173) at c07ac215; inserted an fp8->f32 cast before `if axis is None:` (covers both torch.max and torch.amax branches).
+- Committed on main (fork=abatilo/Model-Optimizer), SSH-signed (gpgsign=true) + DCO -s. No pre-commit hook installed.
+
+## Errors & Mistakes
+- First Edit failed "File has not been read yet" (prior Read was batched with other tool calls); re-Read then Edit worked.
+
+## Dead Ends
+None.
+
+## Hints for Future Agents
+- SAME patch previously applied live in the dev pod (/tmp/patch_reduce_amax.py, FP8_AMAX_CAST_PATCH sentinel) — now durable in the fork.
+- at-repo submodule gitlink + docker-bake.hcl MODELOPT_REVISION must point to THIS commit, and the quantize image rebuilt, for the JobSet path to use it.
+- The validated MiniMax recipe also needs: kv=none, eager attn, online calib dataset (HF_DATASETS_OFFLINE=0). Those are at-repo (ptq.py/quantize.yaml), not modelopt.
+
+## Codebase Discoveries
+- Submodule is checked out ON `main` (not detached) at fork tip c07ac215 (0.45.0dev), which natively supports MiniMax MoE quant.
+
+## Open Questions
+- Whether kv=fp8 would now work WITH this patch (untested; validated recipe used kv=none, which we keep).
